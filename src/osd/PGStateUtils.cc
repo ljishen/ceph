@@ -8,7 +8,8 @@ using ceph::Formatter;
 
 /*------NamedState----*/
 NamedState::NamedState(PGStateHistory *pgsh, const char *state_name)
-  : pgsh(pgsh), state_name(state_name), enter_time(ceph_clock_now()) {
+  : pgsh(pgsh), state_name(state_name), enter_time(ceph_clock_now()),
+    cpu_enter_time(cputime_now()) {
   if(pgsh) {
     pgsh->enter(enter_time, state_name);
   }

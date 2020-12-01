@@ -33,4 +33,12 @@ static inline utime_t ceph_clock_now()
   return n;
 }
 
+static inline utime_t cputime_now()
+{
+  struct timespec tp;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
+  utime_t n(tp);
+  return n;
+}
+
 #endif

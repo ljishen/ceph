@@ -133,7 +133,7 @@ void PerfCountersCollectionImpl::dump_formatted_generic(
     const std::string &counter) const
 {
   f->open_object_section("perfcounter_collection");
-  
+
   for (perf_counters_set_t::iterator l = m_loggers.begin();
        l != m_loggers.end(); ++l) {
     // Optionally filter on logger name, pass through counter filter
@@ -244,12 +244,17 @@ void PerfCounters::tinc(int idx, utime_t amt)
   perf_counter_data_any_d& data(m_data[idx - m_lower_bound - 1]);
   if (!(data.type & PERFCOUNTER_TIME))
     return;
+
+  uint64_t incr = amt.to_nsec();
+  uint64_t max_v = data.max;
   if (data.type & PERFCOUNTER_LONGRUNAVG) {
     data.avgcount++;
-    data.u64 += amt.to_nsec();
+    data.u64 += incr;
+    data.max = std::max(max_v, incr);
     data.avgcount2++;
   } else {
-    data.u64 += amt.to_nsec();
+    data.u64 += incr;
+    data.max = std::max(max_v, incr);
   }
 }
 
@@ -338,8 +343,8 @@ pair<uint64_t, uint64_t> PerfCounters::get_tavg_ns(int idx) const
     return make_pair(0, 0);
   if (!(data.type & PERFCOUNTER_LONGRUNAVG))
     return make_pair(0, 0);
-  pair<uint64_t,uint64_t> a = data.read_avg();
-  return make_pair(a.second, a.first);
+  std::tuple<uint64_t,uint64_t,uint64_t> a = data.read_avg();
+  return make_pair(std::get<1>(a), std::get<0>(a));
 }
 
 void PerfCounters::reset()
@@ -357,7 +362,7 @@ void PerfCounters::dump_formatted_generic(Formatter *f, bool schema,
     bool histograms, const std::string &counter) const
 {
   f->open_object_section(m_name.c_str());
-  
+
   for (perf_counter_data_vec_t::const_iterator d = m_data.begin();
        d != m_data.end(); ++d) {
     if (!counter.empty() && counter != d->name) {
@@ -411,27 +416,27 @@ void PerfCounters::dump_formatted_generic(Formatter *f, bool schema,
         f->dump_string("nick", "");
       }
       f->dump_int("priority", get_adjusted_priority(d->prio));
-      
+
       if (d->unit == UNIT_NONE) {
-	f->dump_string("units", "none"); 
+	f->dump_string("units", "none");
       } else if (d->unit == UNIT_BYTES) {
 	f->dump_string("units", "bytes");
       }
       f->close_section();
     } else {
       if (d->type & PERFCOUNTER_LONGRUNAVG) {
-	f->open_object_section(d->name);
-	pair<uint64_t,uint64_t> a = d->read_avg();
+        f->open_object_section(d->name);
+        std::tuple<uint64_t,uint64_t,uint64_t> a = d->read_avg();
 	if (d->type & PERFCOUNTER_U64) {
-	  f->dump_unsigned("avgcount", a.second);
-	  f->dump_unsigned("sum", a.first);
+	  f->dump_unsigned("avgcount", std::get<1>(a));
+	  f->dump_unsigned("sum", std::get<0>(a));
 	} else if (d->type & PERFCOUNTER_TIME) {
-	  f->dump_unsigned("avgcount", a.second);
+	  f->dump_unsigned("avgcount", std::get<1>(a));
 	  f->dump_format_unquoted("sum", "%" PRId64 ".%09" PRId64,
-				  a.first / 1000000000ull,
-				  a.first % 1000000000ull);
-          uint64_t count = a.second;
-          uint64_t sum_ns = a.first;
+				  std::get<0>(a) / 1000000000ull,
+				  std::get<0>(a) % 1000000000ull);
+          uint64_t count = std::get<1>(a);
+          uint64_t sum_ns = std::get<0>(a);
           if (count) {
             uint64_t avg_ns = sum_ns / count;
             f->dump_format_unquoted("avgtime", "%" PRId64 ".%09" PRId64,
@@ -440,6 +445,9 @@ void PerfCounters::dump_formatted_generic(Formatter *f, bool schema,
           } else {
             f->dump_format_unquoted("avgtime", "%" PRId64 ".%09" PRId64, 0, 0);
           }
+	  f->dump_format_unquoted("max", "%" PRId64 ".%09" PRId64,
+				  std::get<2>(a) / 1000000000ull,
+				  std::get<2>(a) % 1000000000ull);
 	} else {
 	  ceph_abort();
 	}

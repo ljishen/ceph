@@ -21,6 +21,7 @@ struct NamedState {
   PGStateHistory *pgsh;
   const char *state_name;
   utime_t enter_time;
+  utime_t cpu_enter_time;
   const char *get_state_name() { return state_name; }
   NamedState(
     PGStateHistory *pgsh,

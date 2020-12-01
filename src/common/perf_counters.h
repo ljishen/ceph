@@ -1,4 +1,4 @@
-// -*- mode:C++; tab-width:8; c-basic-offset:2; indent-tabs-mode:t -*- 
+// -*- mode:C++; tab-width:8; c-basic-offset:2; indent-tabs-mode:t -*-
 // vim: ts=8 sw=2 smarttab
 /*
  * Ceph - scalable distributed file system
@@ -8,9 +8,9 @@
  *
  * This is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License version 2.1, as published by the Free Software 
+ * License version 2.1, as published by the Free Software
  * Foundation.  See file COPYING.
- * 
+ *
  */
 
 
@@ -129,7 +129,7 @@ private:
 /*
  * A PerfCounters object is usually associated with a single subsystem.
  * It contains counters which we modify to track performance and throughput
- * over time. 
+ * over time.
  *
  * PerfCounters can track several different types of values:
  * 1) integer values & counters
@@ -171,9 +171,10 @@ public:
 	 unit(other.unit),
 	 u64(other.u64.load()) {
       auto a = other.read_avg();
-      u64 = a.first;
-      avgcount = a.second;
-      avgcount2 = a.second;
+      u64 = std::get<0>(a);
+      avgcount = std::get<1>(a);
+      avgcount2 = std::get<1>(a);
+      max = std::get<2>(a);
       if (other.histogram) {
         histogram.reset(new PerfHistogram<>(*other.histogram));
       }
@@ -186,6 +187,7 @@ public:
     enum perfcounter_type_d type;
     enum unit_t unit;
     std::atomic<uint64_t> u64 = { 0 };
+    std::atomic<uint64_t> max = { 0 };
     std::atomic<uint64_t> avgcount = { 0 };
     std::atomic<uint64_t> avgcount2 = { 0 };
     std::unique_ptr<PerfHistogram<>> histogram;
@@ -193,9 +195,10 @@ public:
     void reset()
     {
       if (type != PERFCOUNTER_U64) {
-	    u64 = 0;
-	    avgcount = 0;
-	    avgcount2 = 0;
+        u64 = 0;
+        avgcount = 0;
+        avgcount2 = 0;
+        max = 0;
       }
       if (histogram) {
         histogram->reset();
@@ -205,13 +208,14 @@ public:
     // read <sum, count> safely by making sure the post- and pre-count
     // are identical; in other words the whole loop needs to be run
     // without any intervening calls to inc, set, or tinc.
-    std::pair<uint64_t,uint64_t> read_avg() const {
-      uint64_t sum, count;
+    std::tuple<uint64_t,uint64_t,uint64_t> read_avg() const {
+      uint64_t sum, count, max_v;
       do {
 	count = avgcount2;
 	sum = u64;
+  max_v = max;
       } while (avgcount != count);
-      return { sum, count };
+      return { sum, count, max_v };
     }
   };
 
@@ -356,7 +360,7 @@ private:
 
   perf_counters_set_t m_loggers;
 
-  CounterMap by_path; 
+  CounterMap by_path;
 };
 
 

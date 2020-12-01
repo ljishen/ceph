@@ -4629,7 +4629,7 @@ void PeeringState::Initial::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_initial_latency, dur);
 }
 
@@ -4690,7 +4690,7 @@ void PeeringState::Started::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_started_latency, dur);
   ps->state_clear(PG_STATE_WAIT | PG_STATE_LAGGY);
 }
@@ -4785,7 +4785,7 @@ void PeeringState::Reset::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_reset_latency, dur);
 }
 
@@ -4810,7 +4810,7 @@ void PeeringState::Start::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_start_latency, dur);
 }
 
@@ -4908,7 +4908,7 @@ void PeeringState::Primary::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
   ps->want_acting.clear();
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_primary_latency, dur);
   pl->clear_primary_state();
   ps->state_clear(PG_STATE_CREATING);
@@ -5010,7 +5010,7 @@ void PeeringState::Peering::exit()
   ps->state_clear(PG_STATE_PEERING);
   pl->clear_probe_targets();
 
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_peering_latency, dur);
 }
 
@@ -5134,7 +5134,7 @@ void PeeringState::Backfilling::exit()
   ps->backfill_reserved = false;
   ps->state_clear(PG_STATE_BACKFILLING);
   ps->state_clear(PG_STATE_FORCED_BACKFILL | PG_STATE_FORCED_RECOVERY);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_backfilling_latency, dur);
 }
 
@@ -5187,7 +5187,7 @@ void PeeringState::WaitRemoteBackfillReserved::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
 
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_waitremotebackfillreserved_latency, dur);
 }
 
@@ -5266,7 +5266,7 @@ void PeeringState::WaitLocalBackfillReserved::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_waitlocalbackfillreserved_latency, dur);
 }
 
@@ -5307,7 +5307,7 @@ void PeeringState::NotBackfilling::exit()
 
   DECLARE_LOCALS;
   ps->state_clear(PG_STATE_BACKFILL_UNFOUND);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_notbackfilling_latency, dur);
 }
 
@@ -5336,7 +5336,7 @@ void PeeringState::NotRecovering::exit()
 
   DECLARE_LOCALS;
   ps->state_clear(PG_STATE_RECOVERY_UNFOUND);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_notrecovering_latency, dur);
 }
 
@@ -5361,7 +5361,7 @@ void PeeringState::RepNotRecovering::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_repnotrecovering_latency, dur);
 }
 
@@ -5402,7 +5402,7 @@ void PeeringState::RepWaitRecoveryReserved::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_repwaitrecoveryreserved_latency, dur);
 }
 
@@ -5475,7 +5475,7 @@ void PeeringState::RepWaitBackfillReserved::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_repwaitbackfillreserved_latency, dur);
 }
 
@@ -5593,7 +5593,7 @@ void PeeringState::RepRecovering::exit()
   pl->unreserve_recovery_space();
 
   pl->cancel_remote_recovery_reservation();
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_reprecovering_latency, dur);
 }
 
@@ -5609,7 +5609,7 @@ void PeeringState::Activating::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_activating_latency, dur);
 }
 
@@ -5660,7 +5660,7 @@ void PeeringState::WaitLocalRecoveryReserved::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_waitlocalrecoveryreserved_latency, dur);
 }
 
@@ -5700,7 +5700,7 @@ void PeeringState::WaitRemoteRecoveryReserved::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_waitremoterecoveryreserved_latency, dur);
 }
 
@@ -5811,7 +5811,7 @@ void PeeringState::Recovering::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
 
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   ps->state_clear(PG_STATE_RECOVERING);
   pl->get_peering_perf().tinc(rs_recovering_latency, dur);
 }
@@ -5857,7 +5857,7 @@ void PeeringState::Recovered::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
 
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_recovered_latency, dur);
 }
 
@@ -5886,7 +5886,7 @@ void PeeringState::Clean::exit()
 
   DECLARE_LOCALS;
   ps->state_clear(PG_STATE_CLEAN);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_clean_latency, dur);
 }
 
@@ -6363,7 +6363,7 @@ void PeeringState::Active::exit()
   ps->state_clear(PG_STATE_BACKFILL_WAIT);
   ps->state_clear(PG_STATE_RECOVERY_WAIT);
   ps->state_clear(PG_STATE_RECOVERY_TOOFULL);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_active_latency, dur);
   pl->on_active_exit();
 }
@@ -6518,7 +6518,7 @@ void PeeringState::ReplicaActive::exit()
   pl->unreserve_recovery_space();
 
   pl->cancel_remote_recovery_reservation();
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_replicaactive_latency, dur);
 
   ps->min_last_complete_ondisk = eversion_t();
@@ -6629,7 +6629,7 @@ void PeeringState::Stray::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_stray_latency, dur);
 }
 
@@ -6891,7 +6891,7 @@ void PeeringState::GetInfo::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
 
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_getinfo_latency, dur);
   ps->blocked_by.clear();
 }
@@ -7032,7 +7032,7 @@ void PeeringState::GetLog::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
 
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_getlog_latency, dur);
   ps->blocked_by.clear();
 }
@@ -7100,7 +7100,7 @@ void PeeringState::WaitActingChange::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_waitactingchange_latency, dur);
 }
 
@@ -7128,7 +7128,7 @@ void PeeringState::Down::exit()
   DECLARE_LOCALS;
 
   ps->state_clear(PG_STATE_DOWN);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_down_latency, dur);
 
   ps->blocked_by.clear();
@@ -7243,7 +7243,7 @@ void PeeringState::Incomplete::exit()
   DECLARE_LOCALS;
 
   ps->state_clear(PG_STATE_INCOMPLETE);
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_incomplete_latency, dur);
 
   ps->blocked_by.clear();
@@ -7400,7 +7400,7 @@ void PeeringState::GetMissing::exit()
   context< PeeringMachine >().log_exit(state_name, enter_time);
 
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_getmissing_latency, dur);
   ps->blocked_by.clear();
 }
@@ -7452,7 +7452,7 @@ void PeeringState::WaitUpThru::exit()
 {
   context< PeeringMachine >().log_exit(state_name, enter_time);
   DECLARE_LOCALS;
-  utime_t dur = ceph_clock_now() - enter_time;
+  utime_t dur = cputime_now() - cpu_enter_time;
   pl->get_peering_perf().tinc(rs_waitupthru_latency, dur);
 }
 
